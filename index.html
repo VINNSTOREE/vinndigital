@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Up Ku - Top Up Game & PPOB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #4b5563, #1f2937);
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Carousel Styles */
+        .carousel-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+            height: 200px; /* Adjust height as needed */
+        }
+        .carousel-slide {
+            min-width: 100%;
+            position: relative;
+        }
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .carousel-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        .carousel-indicators {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .carousel-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .carousel-indicator.active {
+            background-color: white;
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .banner-container::-webkit-scrollbar {
+            display: none;
+        }
+        .banner-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-4 sticky top-0 z-10 shadow-md">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <i class="fas fa-gamepad text-2xl mr-3 text-yellow-300"></i>
+                <h1 class="text-2xl font-bold">Top Up Ku</h1>
+            </div>
+            <div class="w-full md:w-1/3 mb-4 md:mb-0">
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="Cari produk..." 
+                           class="w-full py-2 px-4 pr-10 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300">
+                    <button id="search-button" class="absolute right-3 top-2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <nav class="flex space-x-4">
+                <a href="index.html" class="hover:text-yellow-300 transition">Beranda</a>
+                <a href="#products" class="hover:text-yellow-300 transition">Produk</a>
+                <a href="#contact" class="hover:text-yellow-300 transition">Kontak</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="py-16 gradient-bg text-white text-center">
+        <div class="container mx-auto px-4">
+            <div class="max-w-2xl mx-auto animate-fadeIn">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Top Up Game & PPOB</h2>
+                <p class="text-lg mb-6">Mudah, cepat, dan aman. Layanan terbaik untuk kebutuhan digital Anda.</p>
+                <a href="#products" class="inline-block bg-yellow-400 text-gray-800 py-2 px-6 rounded-full font-medium hover:bg-yellow-500 transition">
+                    Lihat Produk <i class="fas fa-arrow-down ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Carousel Section -->
+    <section class="py-6 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <div class="carousel-container">
+                <div class="carousel-track">
+                    <!-- Slide 1 -->
+                    <div class="carousel-slide">
+                        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Promo Game">
+                        <div class="carousel-caption">
+                            <h4 class="font-bold">TopUp Game Tanpa Ribet</h4>
+                            <p class="text-sm">Bisa jadi peluang usaha!</p>
+                        </div>
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="carousel-slide">
+                        <img src="https://cdn.xtermai.xyz/q65kf.jpg" alt="Promo Game">
+                        <div class="carousel-caption">
+                            <h4 class="font-bold">Ada paket data dan pulsa m</h4>
+                            <p class="text-sm">Bisa buat usaha konter kamu!</p>
+                        </div>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="carousel-slide">
+                        <img src="https://cdn.xtermai.xyz/7b14P.jpg" alt="Promo PPOB">
+                        <div class="carousel-caption">
+                            <h4 class="font-bold">Kamu bisa gabung jadi mitra suksesku</h4>
+                            <p class="text-sm">Gass Hubungin Kontak Admin</p>
+                        </div>
+                    </div>
+                <div class="carousel-indicators">
+                    <div class="carousel-indicator active" data-index="0"></div>
+                    <div class="carousel-indicator" data-index="1"></div>
+                    <div class="carousel-indicator" data-index="2"></div>
+                    <div class="carousel-indicator" data-index="3"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold mb-2">Produk Kami</h2>
+                <p class="text-gray-600">Pilih dari berbagai macam produk game dan PPOB</p>
+            </div>
+            
+<div class="flex justify-center mb-6">
+    <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-hidden px-4 w-full sm:w-auto">
+        <button class="category-btn flex flex-col items-center px-4 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg whitespace-nowrap hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-sm hover:shadow-md text-sm sm:text-base" data-category="all">
+            <img src="https://cdn-icons-png.flaticon.com/128/5937/5937375.png" alt="All" class="w-6 h-6 sm:w-7 sm:h-7 mb-1">
+            Semua
+        </button>
+        <button class="category-btn flex flex-col items-center px-4 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg whitespace-nowrap hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-sm hover:shadow-md text-sm sm:text-base" data-category="game">
+            <img src="https://cdn-icons-png.flaticon.com/128/10494/10494293.png" alt="Game" class="w-6 h-6 sm:w-7 sm:h-7 mb-1">
+            Game
+        </button>
+        <button class="category-btn flex flex-col items-center px-4 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg whitespace-nowrap hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-sm hover:shadow-md text-sm sm:text-base" data-category="pulsa">
+            <img src="https://cdn-icons-png.flaticon.com/128/3814/3814671.png" alt="Pulsa" class="w-6 h-6 sm:w-7 sm:h-7 mb-1">
+            Pulsa
+        </button>
+        <button class="category-btn flex flex-col items-center px-4 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg whitespace-nowrap hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-sm hover:shadow-md text-sm sm:text-base" data-category="pln">
+            <img src="https://cdn-icons-png.flaticon.com/128/5612/5612687.png" alt="PLN" class="w-6 h-6 sm:w-7 sm:h-7 mb-1">
+            PLN
+        </button>
+    </div>
+</div>
+            
+            <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+            
+            <div id="no-results" class="text-center py-8 hidden">
+                <i class="fas fa-search text-4xl text-gray-300 mb-3"></i>
+                <p class="text-gray-500">Produk tidak ditemukan</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Product Details -->
+    <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-xl font-bold"></h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p id="modal-price" class="text-lg font-semibold text-blue-600 mb-4"></p>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                    <input id="modal-phone-number" type="text" placeholder="Masukkan Nomor Telepon" 
+                           class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">User ID</label>
+                    <input id="modal-user-id" type="text" placeholder="Masukkan User ID" 
+                           class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Zone ID (opsional)</label>
+                    <input id="modal-zone-id" type="text" placeholder="Masukkan Zone ID" 
+                           class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            <button id="proceed-payment" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition">
+                Lanjutkan Pembayaran
+            </button>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4 text-center">
+            <h3 class="text-xl font-bold mb-4">Pembayaran QRIS</h3>
+            <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                <img id="qris-image" src="" alt="QRIS Code" class="mx-auto w-48 h-48 object-contain">
+            </div>
+            <p id="qris-amount" class="text-lg font-semibold mb-2"></p>
+            <p id="qris-expiry" class="text-sm text-gray-500 mb-4"></p>
+            <div class="flex space-x-3">
+                <button id="check-payment" class="flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
+                    <i class="fas fa-sync-alt mr-2"></i> Cek Status
+                </button>
+                <button id="cancel-payment" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded hover:bg-gray-300 transition">
+                    <i class="fas fa-times mr-2"></i> Batalkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact" class="gradient-bg text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-6">
+                <h3 class="text-xl font-bold mb-3">Hubungi Kami</h3>
+                <div class="flex justify-center space-x-4">
+                    <a href="#" class="hover:text-yellow-300 transition"><i class="fab fa-whatsapp text-xl"></i></a>
+                    <a href="#" class="hover:text-yellow-300 transition"><i class="fas fa-envelope text-xl"></i></a>
+                    <a href="#" class="hover:text-yellow-300 transition"><i class="fab fa-instagram text-xl"></i></a>
+                </div>
+            </div>
+            <div class="text-center text-sm">
+                <p>Email: sukseskucs@gmail.com</p>
+                <p>WhatsApp: +62 89528157038</p>
+                <p class="mt-3">&copy; 2025 Suksesku. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Carousel Functionality
+        class Carousel {
+            constructor(container) {
+                this.container = container;
+                this.track = container.querySelector('.carousel-track');
+                this.slides = Array.from(container.querySelectorAll('.carousel-slide'));
+                this.indicators = Array.from(container.querySelectorAll('.carousel-indicator'));
+                this.currentIndex = 0;
+                this.slideCount = this.slides.length;
+                this.interval = null;
+                this.touchStartX = 0;
+                this.touchEndX = 0;
+                
+                this.init();
+            }
+            
+            init() {
+                // Start auto rotation
+                this.startAutoSlide();
+                
+                // Add touch events for mobile swipe
+                this.track.addEventListener('touchstart', (e) => {
+                    this.touchStartX = e.changedTouches[0].screenX;
+                    this.pauseAutoSlide();
+                }, {passive: true});
+                
+                this.track.addEventListener('touchend', (e) => {
+                    this.touchEndX = e.changedTouches[0].screenX;
+                    this.handleSwipe();
+                    this.startAutoSlide();
+                }, {passive: true});
+                
+                // Add click events for indicators
+                this.indicators.forEach(indicator => {
+                    indicator.addEventListener('click', () => {
+                        const index = parseInt(indicator.dataset.index);
+                        this.goToSlide(index);
+                        this.pauseAutoSlide();
+                        this.startAutoSlide();
+                    });
+                });
+            }
+            
+            startAutoSlide() {
+                this.interval = setInterval(() => {
+                    this.nextSlide();
+                }, 5000); // Change slide every 5 seconds
+            }
+            
+            pauseAutoSlide() {
+                clearInterval(this.interval);
+            }
+            
+            nextSlide() {
+                this.currentIndex = (this.currentIndex + 1) % this.slideCount;
+                this.updateCarousel();
+            }
+            
+            prevSlide() {
+                this.currentIndex = (this.currentIndex - 1 + this.slideCount) % this.slideCount;
+                this.updateCarousel();
+            }
+            
+            goToSlide(index) {
+                this.currentIndex = index;
+                this.updateCarousel();
+            }
+            
+            handleSwipe() {
+                const threshold = 50; // Minimum swipe distance to trigger slide change
+                const difference = this.touchStartX - this.touchEndX;
+                
+                if (difference > threshold) {
+                    this.nextSlide(); // Swipe left
+                } else if (difference < -threshold) {
+                    this.prevSlide(); // Swipe right
+                }
+            }
+            
+            updateCarousel() {
+                // Update track position
+                this.track.style.transform = `translateX(-${this.currentIndex * 100}%)`;
+                
+                // Update active indicator
+                this.indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index === this.currentIndex);
+                });
+            }
+        }
+        
+        // Initialize carousel when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const carouselContainer = document.querySelector('.carousel-container');
+            if (carouselContainer) {
+                new Carousel(carouselContainer);
+            }
+        });
+
+        // API Configuration
+        const apiConfig = {
+            base_url: 'https://forestapi.web.id',
+            secret_key: 'sk-rvld26cq11126n',
+            profit: 100
+        };
+
+        // DOM Elements
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const productList = document.getElementById('product-list');
+        const noResults = document.getElementById('no-results');
+
+        // Global variables
+        let allProducts = [];
+        let selectedProduct = {};
+
+        // Fetch Products
+        async function fetchProducts() {
+            try {
+                const response = await fetch(`${apiConfig.base_url}/api/h2h/price-list/all?api_key=${apiConfig.secret_key}`);
+                const data = await response.json();
+                if (data.status === 'success') {
+                    allProducts = data.data.filter(product => product.available);
+                    displayProducts(allProducts);
+                } else {
+                    showError('Gagal memuat produk. Silakan coba lagi.');
+                }
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                showError('Terjadi kesalahan. Silakan coba lagi.');
+            }
+        }
+
+        // Display Products with filtering
+        function displayProducts(products, category = 'all', searchTerm = '') {
+            productList.innerHTML = '';
+            
+            let filteredProducts = products;
+            
+            // Filter by category
+            if (category !== 'all') {
+                filteredProducts = filteredProducts.filter(product => 
+                    product.category.toLowerCase().includes(category) || 
+                    product.provider.toLowerCase().includes(category)
+                );
+            }
+            
+            // Filter by search term
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                filteredProducts = filteredProducts.filter(product => 
+                    product.name.toLowerCase().includes(term) ||
+                    product.category.toLowerCase().includes(term) ||
+                    product.provider.toLowerCase().includes(term)
+                );
+            }
+            
+            // Display results or no results message
+            if (filteredProducts.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                filteredProducts.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-100 card-hover transition';
+                    productCard.innerHTML = `
+                        <div class="flex items-start mb-3">
+                            <div class="bg-gray-100 p-2 rounded mr-3">
+                                <i class="fas ${getProductIcon(product.category)} text-gray-500"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium">${product.name}</h3>
+                                <p class="text-sm text-gray-500">${product.category} • ${product.provider}</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <p class="font-bold text-blue-600">${product.formatted_price}</p>
+                            <button class="text-sm bg-blue-100 text-blue-600 py-1 px-3 rounded hover:bg-blue-200 transition"
+                                onclick="createTransaction('${product.code}', '${product.name}', '${product.formatted_price}', ${product.price})">
+                                Beli
+                            </button>
+                        </div>
+                    `;
+                    productList.appendChild(productCard);
+                });
+            }
+        }
+
+        // Get appropriate icon for product category
+        function getProductIcon(category) {
+            const lowerCategory = category.toLowerCase();
+            if (lowerCategory.includes('game')) return 'fa-gamepad';
+            if (lowerCategory.includes('pulsa')) return 'fa-mobile-alt';
+            if (lowerCategory.includes('pln')) return 'fa-bolt';
+            if (lowerCategory.includes('voucher')) return 'fa-ticket-alt';
+            return 'fa-shopping-bag';
+        }
+
+        // Create Transaction (Modal Setup)
+        async function createTransaction(code, name, formattedPrice, price) {
+            selectedProduct = { code, name, price, formattedPrice };
+            document.getElementById('modal-title').textContent = name;
+            document.getElementById('modal-price').textContent = formattedPrice;
+
+            // Add input fields in modal
+            const modalInputs = document.querySelector('#product-modal .space-y-3');
+            modalInputs.innerHTML = `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                    <input id="modal-phone-number" type="text" placeholder="Masukkan Nomor Telepon" 
+                           class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">User ID</label>
+                    <input id="modal-user-id" type="text" placeholder="Masukkan User ID" 
+                           class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Zone ID (opsional)</label>
+                    <input id="modal-zone-id" type="text" placeholder="Masukkan Zone ID" 
+                           class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            `;
+
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        // Close Product Modal
+        document.getElementById('close-modal').addEventListener('click', () => {
+            document.getElementById('product-modal').classList.add('hidden');
+        });
+
+        // Proceed to Payment
+        document.getElementById('proceed-payment').addEventListener('click', async () => {
+            const userId = document.getElementById('modal-user-id').value;
+            const zoneId = document.getElementById('modal-zone-id').value;
+            const phoneNumber = document.getElementById('modal-phone-number').value;
+
+            if (!phoneNumber) {
+                showError('Nomor telepon harus diisi.');
+                return;
+            }
+
+            if (!userId && selectedProduct.code.includes('game')) {
+                showError('User ID harus diisi untuk pembelian game.');
+                return;
+            }
+
+            // Store user inputs in selectedProduct
+            selectedProduct.phoneNumber = phoneNumber;
+            selectedProduct.userId = userId || null;
+            selectedProduct.zoneId = zoneId || null;
+
+            try {
+                // Create deposit QRIS first
+                const depositReffId = `deposit-${Math.random().toString(36).substr(2, 8)}`;
+                const depositPayload = {
+                    phone_number: phoneNumber,
+                    nominal: selectedProduct.price + apiConfig.profit,
+                    method: 'QRISFAST',
+                    reff_id: depositReffId,
+                    api_key: apiConfig.secret_key
+                };
+
+                const depositResponse = await fetch(`${apiConfig.base_url}/api/h2h/deposit/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(depositPayload)
+                });
+                const depositData = await depositResponse.json();
+
+                if (depositData.status === 'success') {
+                    document.getElementById('product-modal').classList.add('hidden');
+                    document.getElementById('qris-image').src = depositData.data.qr_image_url;
+                    document.getElementById('qris-amount').textContent = `Rp ${(selectedProduct.price + apiConfig.profit).toLocaleString('id-ID')}`;
+                    document.getElementById('qris-expiry').textContent = `Berlaku hingga: ${formatTime(depositData.data.expired_at)}`;
+                    document.getElementById('payment-modal').classList.remove('hidden');
+                    selectedProduct.depositId = depositData.data.id;
+
+                    // Start polling deposit status
+                    pollDepositStatus();
+                } else {
+                    showError(depositData.message || 'Gagal membuat QRIS. Silakan coba lagi.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Terjadi kesalahan. Silakan coba lagi.');
+            }
+        });
+
+        // Poll Deposit Status
+        async function pollDepositStatus() {
+            const maxAttempts = 30; // Try for ~5 minutes (30 * 10 seconds)
+            let attempts = 0;
+
+            const interval = setInterval(async () => {
+                try {
+                    // Check deposit status
+                    const depositResponse = await fetch(`${apiConfig.base_url}/api/h2h/deposit/status?id=${selectedProduct.depositId}&api_key=${apiConfig.secret_key}`);
+                    const depositData = await depositResponse.json();
+
+                    if (depositData.data.status === 'success') {
+                        clearInterval(interval);
+                        // Payment successful, now create transaction
+                        await createTransactionAfterPayment();
+                    } else if (depositData.data.status === 'failed') {
+                        clearInterval(interval);
+                        showError('Pembayaran gagal. Silakan coba lagi.');
+                        document.getElementById('payment-modal').classList.add('hidden');
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        showError('Waktu pembayaran habis. Transaksi dibatalkan.');
+                        await cancelPayment();
+                        document.getElementById('payment-modal').classList.add('hidden');
+                    }
+
+                    attempts++;
+                } catch (error) {
+                    console.error('Error checking status:', error);
+                    if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        showError('Terjadi kesalahan. Transaksi dibatalkan.');
+                        await cancelPayment();
+                        document.getElementById('payment-modal').classList.add('hidden');
+                    }
+                    attempts++;
+                }
+            }, 10000); // Check every 10 seconds
+        }
+
+        // Create Transaction After Successful Payment
+        async function createTransactionAfterPayment() {
+            try {
+                const transactionReffId = `trx-${Math.random().toString(36).substr(2, 8)}`;
+                const transactionPayload = {
+                    product_code: selectedProduct.code,
+                    target: selectedProduct.phoneNumber,
+                    user_id: selectedProduct.userId,
+                    zone_id: selectedProduct.zoneId,
+                    reff_id: transactionReffId,
+                    api_key: apiConfig.secret_key
+                };
+
+                const transactionResponse = await fetch(`${apiConfig.base_url}/api/h2h/transaction/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(transactionPayload)
+                });
+                const transactionData = await transactionResponse.json();
+
+                if (transactionData.status === 'success') {
+                    selectedProduct.transactionId = transactionData.data.id;
+                    selectedProduct.transactionPrice = transactionData.data.price;
+                    selectedProduct.transactionReffId = transactionData.data.reff_id;
+
+                    // Start polling transaction status
+                    pollTransactionStatus();
+                } else {
+                    showError(transactionData.message || 'Gagal membuat transaksi. Silakan coba lagi.');
+                    document.getElementById('payment-modal').classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error creating transaction:', error);
+                showError('Terjadi kesalahan saat membuat transaksi. Silakan coba lagi.');
+                document.getElementById('payment-modal').classList.add('hidden');
+            }
+        }
+
+        // Poll Transaction Status
+        async function pollTransactionStatus() {
+            const maxAttempts = 30;
+            let attempts = 0;
+
+            const interval = setInterval(async () => {
+                try {
+                    const transactionResponse = await fetch(`${apiConfig.base_url}/api/h2h/transaction/status?id=${selectedProduct.transactionId}&api_key=${apiConfig.secret_key}`);
+                    const transactionData = await transactionResponse.json();
+
+                    if (transactionData.data.status === 'success') {
+                        clearInterval(interval);
+                        alert('Transaksi berhasil! Pulsa/Paket data telah terisi.');
+                        document.getElementById('payment-modal').classList.add('hidden');
+                    } else if (transactionData.data.status === 'failed') {
+                        clearInterval(interval);
+                        showError('Transaksi gagal. Silakan coba lagi.');
+                        document.getElementById('payment-modal').classList.add('hidden');
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        showError('Waktu pemrosesan transaksi habis.');
+                        document.getElementById('payment-modal').classList.add('hidden');
+                    }
+
+                    attempts++;
+                } catch (error) {
+                    console.error('Error checking transaction status:', error);
+                    if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        showError('Terjadi kesalahan. Transaksi dibatalkan.');
+                        document.getElementById('payment-modal').classList.add('hidden');
+                    }
+                    attempts++;
+                }
+            }, 10000);
+        }
+
+// Check Payment Status (Manual Check)
+document.getElementById('check-payment').addEventListener('click', async () => {
+    try {
+        const depositResponse = await fetch(`${apiConfig.base_url}/api/h2h/deposit/status?id=${selectedProduct.depositId}&api_key=${apiConfig.secret_key}`);
+        const depositData = await depositResponse.json();
+        
+        if (depositData.data.status === 'success') {
+            if (selectedProduct.transactionId) {
+                // If transaction already created, check its status
+                const transactionResponse = await fetch(`${apiConfig.base_url}/api/h2h/transaction/status?id=${selectedProduct.transactionId}&api_key=${apiConfig.secret_key}`);
+                const transactionData = await transactionResponse.json();
+                
+                if (transactionData.data.status === 'success') {
+                    alert('Transaksi berhasil! Pulsa/Paket data telah terisi.');
+                    document.getElementById('payment-modal').classList.add('hidden');
+                } else if (transactionData.data.status === 'pending') {
+                    showError('Transaksi masih diproses. Silakan coba lagi nanti.');
+                } else {
+                    showError('Transaksi gagal. Silakan coba lagi.');
+                }
+            } else {
+                // If transaction not yet created, create it
+                await createTransactionAfterPayment();
+            }
+        } else if (depositData.data.status === 'pending') {
+            showError('Pembayaran masih diproses. Silakan coba lagi nanti.');
+        } else {
+            showError('Pembayaran gagal. Silakan coba lagi.');
+        }
+    } catch (error) {
+        console.error('Error checking payment:', error);
+        showError('Terjadi kesalahan. Silakan coba lagi.');
+    }
+});
+
+// Cancel Payment
+document.getElementById('cancel-payment').addEventListener('click', async () => {
+    await cancelPayment();
+});
+
+async function cancelPayment() {
+    try {
+        const depositResponse = await fetch(`${apiConfig.base_url}/api/h2h/deposit/cancel`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: selectedProduct.depositId, api_key: apiConfig.secret_key })
+        });
+        const depositData = await depositResponse.json();
+        
+        if (depositData.status === 'success') {
+            alert('Transaksi dibatalkan.');
+            document.getElementById('payment-modal').classList.add('hidden');
+        } else {
+            showError('Gagal membatalkan transaksi. Silakan coba lagi.');
+        }
+    } catch (error) {
+        console.error('Error cancelling transaction:', error);
+        showError('Terjadi kesalahan. Silakan coba lagi.');
+    }
+}
+
+// Format time for display
+function formatTime(dateString) {
+    const options = { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false
+    };
+    return new Date(dateString).toLocaleString('id-ID', options);
+}
+
+// Show error message
+function showError(message) {
+    alert(message);
+}
+
+// Event Listeners
+searchButton.addEventListener('click', () => {
+    const searchTerm = searchInput.value.trim();
+    displayProducts(allProducts, 'all', searchTerm);
+});
+
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const searchTerm = searchInput.value.trim();
+        displayProducts(allProducts, 'all', searchTerm);
+    }
+});
+
+categoryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        categoryButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
+        button.classList.add('bg-blue-600', 'text-white');
+        const category = button.dataset.category;
+        displayProducts(allProducts, category);
+    });
+});
+
+// Initialize
+fetchProducts();
+    </script>
+</body>
+</html>
