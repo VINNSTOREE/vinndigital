@@ -1,21 +1,18 @@
 import { getDB } from "../../lib/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { CONFIG } from "../../lib/config.js";
 
 export default async function handler(req, res) {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email & password wajib diisi"
-      });
+    if (req.method !== "POST") {
+      return res.status(405).json({ success: false });
     }
+
+    const { email, password } = req.body;
 
     const db = await getDB();
 
-    // 🔥 ambil user dari database
     const user = await db.collection("users").findOne({ email });
 
     if (!user) {
@@ -25,7 +22,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // 🔐 cek password
     const valid = await bcrypt.compare(password, user.password);
 
     if (!valid) {
@@ -35,10 +31,9 @@ export default async function handler(req, res) {
       });
     }
 
-    // 🎟️ buat token
     const token = jwt.sign(
-      { email: user.email, id: user._id },
-      process.env.JWT_SECRET,
+      { id: user._id, email: user.email },
+      CONFIG.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
