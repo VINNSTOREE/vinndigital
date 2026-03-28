@@ -1,41 +1,48 @@
-import { CONFIG } from "../../lib/config.js";
-import { getDB } from "../../lib/db.js";
+const { getDB } = require("../../lib/db");
 
-export default async function handler(req, res) {
-  try {
-    const { id } = req.query;
+module.exports = async function handler(req, res){
+  try{
+    const { depositId } = req.query;
+
     const db = await getDB();
 
-    const trx = await db.collection("deposits").findOne({ depositId: id });
-    if (!trx) return res.status(404).json({ error: "Transaksi tidak ditemukan" });
+    const trx = await db.collection("deposits").findOne({ depositId });
 
-    const r = await fetch(`https://ramashop.my.id/api/public/deposit/status/${id}`, {
-      headers: {
-        "X-API-Key": CONFIG.API_KEY
+    if(!trx){
+      return res.json({ success:false });
+    }
+
+    const fetch = require("node-fetch");
+
+    const cek = await fetch(`https://ramashop.my.id/api/public/deposit/status/${depositId}`,{
+      headers:{
+        "X-API-Key":"rg_92de2603ed65af6487074222c8757a"
       }
     });
 
-    const data = await r.json();
+    const result = await cek.json();
 
-    // 🔥 kalau sukses & belum diproses
-    if (data?.data?.status === "success" && trx.status !== "success") {
+    const status = result?.data?.status;
 
-      // update status
-      await db.collection("deposits").updateOne(
-        { depositId: id },
-        { $set: { status: "success" } }
-      );
-
-      // tambah saldo user
+    // 🔥 JIKA SUKSES → TAMBAH SALDO
+    if(status === "success" && trx.status !== "success"){
       await db.collection("users").updateOne(
         { _id: trx.userId },
         { $inc: { saldo: trx.amount } }
       );
+
+      await db.collection("deposits").updateOne(
+        { depositId },
+        { $set: { status: "success" } }
+      );
     }
 
-    res.status(200).json(data);
+    res.json({
+      success:true,
+      status
+    });
 
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  }catch(err){
+    res.json({ success:false });
   }
-}
+      }
