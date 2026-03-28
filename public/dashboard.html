@@ -11,6 +11,7 @@ body{
   font-family:Poppins;
   background:linear-gradient(135deg,#020617,#0f172a);
   color:white;
+  overflow-x:hidden;
 }
 
 /* HEADER */
@@ -18,6 +19,18 @@ body{
   padding:20px;
   font-size:20px;
   font-weight:bold;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logout-btn{
+  background:red;
+  padding:8px 15px;
+  border:none;
+  border-radius:10px;
+  color:white;
+  cursor:pointer;
 }
 
 /* CARD */
@@ -28,15 +41,19 @@ body{
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(20px);
   box-shadow:0 0 40px rgba(0,0,0,0.7);
+  animation:fadeIn 0.6s ease;
 }
 
-/* SALDO */
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
 .saldo{
   font-size:28px;
   font-weight:bold;
 }
 
-/* INPUT */
 input{
   width:100%;
   padding:12px;
@@ -45,7 +62,6 @@ input{
   margin-top:10px;
 }
 
-/* BUTTON */
 button{
   width:100%;
   padding:12px;
@@ -56,13 +72,17 @@ button{
   color:white;
   font-weight:bold;
   cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:scale(1.05);
 }
 
 /* LOADING */
 .loading{
   display:none;
   text-align:center;
-  margin-top:20px;
 }
 
 .spinner{
@@ -83,50 +103,88 @@ button{
 .qr{
   display:none;
   text-align:center;
-  margin-top:20px;
 }
 
 .qr img{
   width:200px;
   border-radius:20px;
   box-shadow:0 0 20px #3b82f6;
-  animation:fade 0.5s ease;
+  animation:zoomIn 0.5s ease;
 }
 
-@keyframes fade{
-  from{opacity:0; transform:scale(0.8);}
+@keyframes zoomIn{
+  from{opacity:0; transform:scale(0.7);}
   to{opacity:1; transform:scale(1);}
+}
+
+/* MODAL LOGOUT */
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  opacity:0;
+  pointer-events:none;
+  transition:0.3s;
+}
+
+.modal.show{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.modal-content{
+  background:#0f172a;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+  animation:scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn{
+  from{transform:scale(0.7);}
+  to{transform:scale(1);}
+}
+
+.modal button{
+  width:auto;
+  margin:5px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">💎 VINN PAY DASHBOARD</div>
+<div class="header">
+  💎 VINN PAY
+  <button class="logout-btn" onclick="openLogout()">Logout</button>
+</div>
 
-<!-- USER -->
 <div class="card">
   <div>Email: <span id="email"></span></div>
   <div class="saldo">Rp <span id="saldo">0</span></div>
 </div>
 
-<!-- API KEY -->
 <div class="card">
   <h3>🔑 API KEY</h3>
   <p id="apikey"></p>
-  <p>Request: <span id="req">0</span></p>
-  <p>Last Used: <span id="last">-</span></p>
+  <p>Request: <span id="req"></span></p>
+  <p>Last Used: <span id="last"></span></p>
 
   <button onclick="copyKey()">📋 Copy API Key</button>
   <button onclick="regenKey()">🔄 Regenerate</button>
 </div>
 
-<!-- DEPOSIT -->
 <div class="card">
-  <h3>💳 Deposit Saldo</h3>
-  <input id="amount" placeholder="Masukkan nominal">
+  <h3>💳 Deposit</h3>
+  <input id="amount" placeholder="Nominal">
 
-  <button onclick="deposit()">🚀 Deposit Sekarang</button>
+  <button onclick="deposit()">🚀 Deposit</button>
 
   <div class="loading" id="loading">
     <div class="spinner"></div>
@@ -139,80 +197,102 @@ button{
   </div>
 </div>
 
+<!-- MODAL -->
+<div class="modal" id="logoutModal">
+  <div class="modal-content">
+    <h3>Keluar Akun?</h3>
+    <p>Yakin mau logout?</p>
+    <button onclick="confirmLogout()">Ya</button>
+    <button onclick="closeLogout()">Batal</button>
+  </div>
+</div>
+
 <script>
 const token = localStorage.getItem("token");
 
-// ================= LOAD USER =================
+// PROTEKSI
+if(!token){
+  location.href="/";
+}
+
+// LOAD USER
 async function loadUser(){
-  const res = await fetch("/api/user", {
-    headers:{ authorization: token }
-  });
+  const res = await fetch("/api/user",{headers:{authorization:token}});
   const data = await res.json();
 
-  document.getElementById("email").innerText = data.email;
-  document.getElementById("saldo").innerText = data.saldo.toLocaleString("id-ID");
-
-  document.getElementById("apikey").innerText = data.apiKey;
-  document.getElementById("req").innerText = data.requestCount || 0;
-  document.getElementById("last").innerText = data.lastUsed || "-";
+  email.innerText=data.email;
+  saldo.innerText=data.saldo.toLocaleString("id-ID");
+  apikey.innerText=data.apiKey;
+  req.innerText=data.requestCount||0;
+  last.innerText=data.lastUsed||"-";
 }
 loadUser();
 
-// ================= COPY API =================
+// COPY
 function copyKey(){
-  navigator.clipboard.writeText(document.getElementById("apikey").innerText);
-  alert("API Key berhasil disalin!");
+  navigator.clipboard.writeText(apikey.innerText);
+  alert("API Key disalin!");
 }
 
-// ================= REGEN API =================
+// REGEN
 async function regenKey(){
-  await fetch("/api/user/regen", {
-    method:"POST",
-    headers:{ authorization: token }
-  });
-
-  alert("API Key diganti!");
+  await fetch("/api/user/regen",{method:"POST",headers:{authorization:token}});
   loadUser();
 }
 
-// ================= DEPOSIT =================
+// DEPOSIT
 async function deposit(){
-  const amount = document.getElementById("amount").value;
+  const amount=amountInput.value;
 
-  document.getElementById("loading").style.display="block";
-  document.getElementById("qrBox").style.display="none";
+  loading.style.display="block";
+  qrBox.style.display="none";
 
-  const res = await fetch("/api/deposit/create", {
+  const res=await fetch("/api/deposit/create",{
     method:"POST",
     headers:{
       "Content-Type":"application/json",
-      authorization: token
+      authorization:token
     },
-    body: JSON.stringify({ amount })
+    body:JSON.stringify({amount})
   });
 
-  const data = await res.json();
+  const data=await res.json();
 
   setTimeout(()=>{
-    document.getElementById("loading").style.display="none";
-    document.getElementById("qrBox").style.display="block";
-
-    document.getElementById("qrImg").src = data.data.qrImage;
+    loading.style.display="none";
+    qrBox.style.display="block";
+    qrImg.src=data.data.qrImage;
   },2000);
 
-  const id = data.data.depositId;
+  const id=data.data.depositId;
 
-  const interval = setInterval(async()=>{
-    const cek = await fetch("/api/deposit/status?id="+id);
-    const resCek = await cek.json();
+  const interval=setInterval(async()=>{
+    const cek=await fetch("/api/deposit/status?id="+id);
+    const resCek=await cek.json();
 
-    if(resCek.data.status === "success"){
-      document.getElementById("status").innerText = "✅ Pembayaran berhasil!";
+    if(resCek.data.status==="success"){
+      status.innerText="✅ Berhasil!";
       clearInterval(interval);
-
       loadUser();
     }
   },5000);
+}
+
+// LOGOUT MODAL
+function openLogout(){
+  logoutModal.classList.add("show");
+}
+
+function closeLogout(){
+  logoutModal.classList.remove("show");
+}
+
+function confirmLogout(){
+  document.body.style.opacity="0";
+  setTimeout(()=>{
+    localStorage.removeItem("token");
+    location.href="/";
+  },500);
 }
 </script>
 
