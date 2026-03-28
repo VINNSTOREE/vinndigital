@@ -26,7 +26,7 @@ body{
   backdrop-filter:blur(20px);
   box-shadow:0 0 40px rgba(0,0,0,0.7);
   text-align:center;
-  transition:0.5s;
+  transition:0.3s;
 }
 
 .card:hover{
@@ -100,6 +100,7 @@ button:hover{
   border-radius:10px;
   display:none;
   font-weight:bold;
+  animation:fade 0.3s;
 }
 
 .success{
@@ -120,14 +121,14 @@ button:hover{
   50%{transform:translateX(5px);}
 }
 
-/* ANIM FORM */
-.form{
-  transition:0.4s;
+/* ANIM */
+.fade{
+  animation:fade 0.3s;
 }
-.hidden{
-  opacity:0;
-  transform:translateX(50px);
-  position:absolute;
+
+@keyframes fade{
+  from{opacity:0;}
+  to{opacity:1;}
 }
 </style>
 </head>
@@ -138,7 +139,7 @@ button:hover{
   <h2 id="title">💎 LOGIN</h2>
 
   <!-- LOGIN -->
-  <div id="loginForm" class="form">
+  <div id="loginForm">
     <input id="email" placeholder="Email">
     <input id="pass" type="password" placeholder="Password">
     <button onclick="login()">Login</button>
@@ -146,7 +147,7 @@ button:hover{
   </div>
 
   <!-- REGISTER -->
-  <div id="registerForm" class="form hidden">
+  <div id="registerForm" style="display:none;">
     <input id="emailReg" placeholder="Email">
     <input id="passReg" type="password" placeholder="Password">
     <button onclick="register()">Daftar</button>
@@ -166,45 +167,62 @@ const loading = document.getElementById("loading");
 const notif = document.getElementById("notif");
 const card = document.getElementById("card");
 
-// SWITCH FORM
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const title = document.getElementById("title");
+
+// SWITCH FORM (FIX TOTAL)
 function showRegister(){
   title.innerText="💎 REGISTER";
-  loginForm.classList.add("hidden");
-  registerForm.classList.remove("hidden");
+  loginForm.style.display="none";
+  registerForm.style.display="block";
+  registerForm.classList.add("fade");
 }
 
 function showLogin(){
   title.innerText="💎 LOGIN";
-  registerForm.classList.add("hidden");
-  loginForm.classList.remove("hidden");
+  registerForm.style.display="none";
+  loginForm.style.display="block";
+  loginForm.classList.add("fade");
 }
 
 // LOGIN
 async function login(){
   loading.style.display="block";
+  notif.style.display="none";
 
-  const res = await fetch("/api/auth/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:email.value,
-      password:pass.value
-    })
-  });
+  try{
+    const res = await fetch("/api/auth/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email:email.value,
+        password:pass.value
+      })
+    });
 
-  const data = await res.json();
-  loading.style.display="none";
+    const data = await res.json();
+    loading.style.display="none";
 
-  if(data.success){
-    notif.innerText="✅ Login berhasil";
-    notif.className="notif success";
-    notif.style.display="block";
+    if(data.success){
+      notif.innerText="✅ Login berhasil";
+      notif.className="notif success";
+      notif.style.display="block";
 
-    localStorage.setItem("token",data.token);
+      localStorage.setItem("token",data.token);
 
-    setTimeout(()=>location.href="/dashboard.html",800);
-  }else{
-    notif.innerText="❌ "+data.message;
+      setTimeout(()=>location.href="/dashboard.html",800);
+    }else{
+      notif.innerText="❌ "+data.message;
+      notif.className="notif error";
+      notif.style.display="block";
+      card.classList.add("shake");
+      setTimeout(()=>card.classList.remove("shake"),300);
+    }
+
+  }catch(err){
+    loading.style.display="none";
+    notif.innerText="❌ Server error";
     notif.className="notif error";
     notif.style.display="block";
     card.classList.add("shake");
@@ -215,26 +233,37 @@ async function login(){
 // REGISTER
 async function register(){
   loading.style.display="block";
+  notif.style.display="none";
 
-  const res = await fetch("/api/auth/register",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      email:emailReg.value,
-      password:passReg.value
-    })
-  });
+  try{
+    const res = await fetch("/api/auth/register",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email:emailReg.value,
+        password:passReg.value
+      })
+    });
 
-  const data = await res.json();
-  loading.style.display="none";
+    const data = await res.json();
+    loading.style.display="none";
 
-  if(data.success){
-    notif.innerText="✅ Berhasil daftar, silakan login";
-    notif.className="notif success";
-    notif.style.display="block";
-    showLogin();
-  }else{
-    notif.innerText="❌ "+data.message;
+    if(data.success){
+      notif.innerText="✅ Berhasil daftar, silakan login";
+      notif.className="notif success";
+      notif.style.display="block";
+      showLogin();
+    }else{
+      notif.innerText="❌ "+data.message;
+      notif.className="notif error";
+      notif.style.display="block";
+      card.classList.add("shake");
+      setTimeout(()=>card.classList.remove("shake"),300);
+    }
+
+  }catch(err){
+    loading.style.display="none";
+    notif.innerText="❌ Server error";
     notif.className="notif error";
     notif.style.display="block";
     card.classList.add("shake");
