@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VINN PAYMENT</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: radial-gradient(circle, #1e3a8a, #020617);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: white;
+}
+
+.container {
+  width: 340px;
+  padding: 25px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 6px;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #334155;
+  color: white;
+  cursor: pointer;
+}
+
+.pay {
+  margin-top: 10px;
+  background: #2563eb;
+}
+
+.loading, .qr, .success {
+  display: none;
+  margin-top: 15px;
+}
+
+.qr img {
+  width: 200px;
+}
+
+.timer {
+  color: yellow;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>💳 VINN PAYMENT</h2>
+
+  <input type="number" id="nominal" placeholder="Masukkan nominal">
+
+  <div class="buttons">
+    <button onclick="setNom(1000)">1K</button>
+    <button onclick="setNom(5000)">5K</button>
+    <button onclick="setNom(10000)">10K</button>
+    <button onclick="setNom(20000)">20K</button>
+    <button onclick="setNom(50000)">50K</button>
+    <button onclick="setNom(100000)">100K</button>
+  </div>
+
+  <button class="pay" onclick="bayar()">Bayar</button>
+
+  <div class="loading" id="loading">⏳ Membuat QRIS...</div>
+
+  <div class="qr" id="qr">
+    <img id="qrImage">
+    <p id="trxId"></p>
+    <div class="timer" id="timer"></div>
+  </div>
+
+  <div class="success" id="success">✅ Pembayaran Berhasil</div>
+</div>
+
+<script>
+function setNom(n){
+  document.getElementById("nominal").value = n;
+}
+
+async function bayar(){
+  const nominal = document.getElementById("nominal").value;
+  if(!nominal) return alert("Isi nominal!");
+
+  document.getElementById("loading").style.display = "block";
+
+  const res = await fetch("/api/create", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ amount: Number(nominal) })
+  });
+
+  const data = await res.json();
+  document.getElementById("loading").style.display = "none";
+
+  if(!data.success) return alert("Gagal buat QR");
+
+  document.getElementById("qr").style.display = "block";
+  document.getElementById("qrImage").src = data.data.qrImage;
+  document.getElementById("trxId").innerText = "ID: " + data.data.depositId;
+
+  startTimer(300);
+  cekStatus(data.data.depositId);
+}
+
+function startTimer(time){
+  const el = document.getElementById("timer");
+
+  const i = setInterval(() => {
+    let m = Math.floor(time/60);
+    let s = time%60;
+
+    el.innerText = `⏳ ${m}:${s<10?'0':''}${s}`;
+    time--;
+
+    if(time < 0){
+      clearInterval(i);
+      el.innerText = "Expired";
+    }
+  },1000);
+}
+
+function cekStatus(id){
+  const i = setInterval(async () => {
+    const res = await fetch(`/api/status?id=${id}`);
+    const data = await res.json();
+
+    if(data?.data?.status === "success"){
+      clearInterval(i);
+      document.getElementById("qr").style.display = "none";
+      document.getElementById("success").style.display = "block";
+    }
+
+  },15000);
+}
+</script>
+
+</body>
+</html>
