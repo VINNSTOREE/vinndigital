@@ -269,4 +269,141 @@ loadUser();
 </script>
 
 </body>
+</html>  <h3>🔑 API KEY</h3>
+  <div class="api-box">
+    <input id="apikey" readonly>
+    <button onclick="copyKey()">📋</button>
+  </div>
+  <button onclick="regenKey()">🔄 Regenerate</button>
+</div>
+
+<!-- DEPOSIT -->
+<div class="card">
+  <h3>💳 Deposit</h3>
+  <input id="amount" placeholder="Masukkan nominal">
+
+  <button onclick="createDeposit()">Deposit</button>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Memproses pembayaran...</p>
+  </div>
+
+  <div class="qr" id="qr"></div>
+  <div id="notif" class="notif"></div>
+</div>
+
+<script>
+const notif = document.getElementById("notif");
+
+// LOAD USER
+async function loadUser(){
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/api/user/me",{
+    headers:{ authorization:token }
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+    document.getElementById("saldo").innerText =
+      "Rp"+data.data.saldo.toLocaleString("id-ID");
+
+    document.getElementById("apikey").value = data.data.apiKey;
+  }
+}
+
+// COPY
+function copyKey(){
+  navigator.clipboard.writeText(document.getElementById("apikey").value);
+  notif.innerText="✅ API Key disalin";
+  notif.className="notif success";
+  notif.style.display="block";
+}
+
+// LOGOUT
+function logout(){
+  localStorage.removeItem("token");
+  location.href="/";
+}
+
+// REGENERATE
+async function regenKey(){
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/api/user/regen",{
+    method:"POST",
+    headers:{ authorization:token }
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+    document.getElementById("apikey").value = data.apiKey;
+    notif.innerText="✅ API Key baru dibuat";
+    notif.className="notif success";
+    notif.style.display="block";
+  }
+}
+
+// CREATE DEPOSIT
+async function createDeposit(){
+  const amount = document.getElementById("amount").value;
+  const token = localStorage.getItem("token");
+
+  document.getElementById("loading").style.display="block";
+  document.getElementById("qr").innerHTML="";
+
+  const res = await fetch("/api/deposit/create",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      authorization:token
+    },
+    body:JSON.stringify({ amount })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("loading").style.display="none";
+
+  if(data.success){
+    document.getElementById("qr").innerHTML = `
+      <p>Scan QRIS:</p>
+      <img src="${data.data.qrImage}">
+      <p>Rp${data.data.totalAmount}</p>
+    `;
+
+    cekStatus(data.data.depositId);
+  }else{
+    notif.innerText="❌ Gagal deposit";
+    notif.className="notif error";
+    notif.style.display="block";
+  }
+}
+
+// CEK STATUS
+function cekStatus(id){
+  const interval = setInterval(async ()=>{
+    const res = await fetch(`/api/deposit/status?depositId=${id}`);
+    const data = await res.json();
+
+    if(data.status === "success"){
+      clearInterval(interval);
+
+      notif.innerText="✅ Pembayaran berhasil!";
+      notif.className="notif success";
+      notif.style.display="block";
+
+      loadUser();
+    }
+  },5000);
+}
+
+// INIT
+loadUser();
+</script>
+
+</body>
   </html>
