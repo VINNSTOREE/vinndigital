@@ -3,38 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VINN PAY Dashboard</title>
+<title>VINN GATEWAY🌟</title>
 
 <style>
 body{
   margin:0;
-  font-family:Poppins;
-  background:linear-gradient(135deg,#020617,#0f172a);
+  font-family:Arial;
+  background:#0b1220;
   color:white;
+  display:flex;
 }
 
-/* HEADER */
-.header{
+/* SIDEBAR */
+.sidebar{
+  width:240px;
+  height:100vh;
+  background:#0f172a;
   padding:20px;
+  position:fixed;
+}
+
+.logo{
   font-size:20px;
   font-weight:bold;
-  display:flex;
-  justify-content:space-between;
+  margin-bottom:30px;
+}
+
+.menu button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  background:#111c33;
+  color:white;
+  text-align:left;
+  cursor:pointer;
+}
+
+.menu button:hover{
+  background:#1d2a4a;
+}
+
+/* MAIN */
+.main{
+  margin-left:260px;
+  width:100%;
+  padding:20px;
 }
 
 /* CARD */
 .card{
-  margin:15px;
+  background:#111c33;
   padding:20px;
-  border-radius:20px;
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(20px);
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
+  border-radius:15px;
+  margin-bottom:15px;
+  box-shadow:0 0 20px rgba(0,0,0,0.3);
 }
 
 /* SALDO */
 .saldo{
-  font-size:25px;
+  font-size:28px;
   font-weight:bold;
   color:#22c55e;
 }
@@ -43,34 +72,47 @@ body{
 input{
   width:100%;
   padding:12px;
+  margin-top:10px;
   border:none;
   border-radius:10px;
-  margin-top:10px;
+  background:#0b1220;
+  color:white;
 }
 
 /* BUTTON */
 button{
-  width:100%;
   padding:12px;
   margin-top:10px;
   border:none;
   border-radius:10px;
-  background:linear-gradient(90deg,#3b82f6,#2563eb);
+  background:#2563eb;
   color:white;
-  font-weight:bold;
   cursor:pointer;
+  width:100%;
+}
+
+button:hover{
+  background:#1d4ed8;
 }
 
 /* API */
-.api-box{
+.api{
   display:flex;
   gap:10px;
 }
-.api-box input{
+.api input{
   flex:1;
-  background:#020617;
-  color:#22c55e;
 }
+
+/* NOTIF */
+.notif{
+  display:none;
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+}
+.success{background:#16a34a;}
+.error{background:#dc2626;}
 
 /* QR */
 .qr{
@@ -85,113 +127,108 @@ button{
 /* LOADING */
 .loading{
   display:none;
+  margin-top:10px;
   text-align:center;
 }
 .spinner{
-  border:3px solid rgba(255,255,255,0.2);
-  border-top:3px solid #3b82f6;
+  width:25px;
+  height:25px;
+  border:3px solid #333;
+  border-top:3px solid #2563eb;
   border-radius:50%;
-  width:30px;
-  height:30px;
   animation:spin 1s linear infinite;
   margin:auto;
 }
 @keyframes spin{
   100%{transform:rotate(360deg);}
 }
-
-/* NOTIF */
-.notif{
-  margin-top:10px;
-  padding:10px;
-  border-radius:10px;
-  display:none;
-}
-.success{ background:#16a34a; }
-.error{ background:#dc2626; }
-
-/* LOGOUT */
-.logout{
-  background:#ef4444;
-}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  💎 VINN PAY
-  <button class="logout" onclick="logout()">Logout</button>
-</div>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">💎 VINN PAY</div>
 
-<!-- SALDO -->
-<div class="card">
-  <div>Saldo Anda</div>
-  <div class="saldo" id="saldo">Rp0</div>
-</div>
-
-<!-- API KEY -->
-<div class="card">
-  <h3>🔑 API KEY</h3>
-  <div class="api-box">
-    <input id="apikey" readonly>
-    <button onclick="copyKey()">📋</button>
+  <div class="menu">
+    <button onclick="scrollToTop()">🏠 Dashboard</button>
+    <button onclick="scrollDeposit()">💳 Deposit</button>
+    <button onclick="logout()">🚪 Logout</button>
   </div>
-  <button onclick="regenKey()">🔄 Regenerate</button>
 </div>
 
-<!-- DEPOSIT -->
-<div class="card">
-  <h3>💳 Deposit</h3>
-  <input id="amount" placeholder="Masukkan nominal">
+<!-- MAIN -->
+<div class="main">
 
-  <button onclick="createDeposit()">Deposit</button>
-
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p>Memproses pembayaran...</p>
+  <!-- SALDO -->
+  <div class="card">
+    <div>Saldo Anda</div>
+    <div class="saldo" id="saldo">Rp0</div>
   </div>
 
-  <div class="qr" id="qr"></div>
-  <div id="notif" class="notif"></div>
+  <!-- API KEY -->
+  <div class="card">
+    <h3>🔑 API KEY</h3>
+    <div class="api">
+      <input id="apikey" readonly placeholder="Loading...">
+      <button onclick="copyKey()">📋</button>
+    </div>
+    <button onclick="regenKey()">🔄 Regenerate</button>
+  </div>
+
+  <!-- DEPOSIT -->
+  <div class="card" id="depositCard">
+    <h3>💳 Deposit QRIS</h3>
+    <input id="amount" placeholder="Masukkan nominal">
+
+    <button onclick="createDeposit()">Buat Deposit</button>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Memproses QRIS...</p>
+    </div>
+
+    <div class="qr" id="qr"></div>
+    <div class="notif" id="notif"></div>
+  </div>
+
 </div>
 
 <script>
 const notif = document.getElementById("notif");
 
-// LOAD USER
+/* LOAD USER */
 async function loadUser(){
-  const token = localStorage.getItem("token");
+  try{
+    const token = localStorage.getItem("token");
+    if(!token) return location.href="/";
 
-  const res = await fetch("/api/user/me",{
-    headers:{ authorization:token }
-  });
+    const res = await fetch("/api/user/me",{
+      headers:{ authorization: token }
+    });
 
-  const data = await res.json();
+    const data = await res.json();
+    if(!data.success) return;
 
-  if(data.success){
     document.getElementById("saldo").innerText =
-      "Rp"+data.data.saldo.toLocaleString("id-ID");
+      "Rp"+Number(data.data.saldo||0).toLocaleString("id-ID");
 
-    document.getElementById("apikey").value = data.data.apiKey;
+    document.getElementById("apikey").value =
+      data.data.apiKey || "-";
+
+  }catch(e){
+    console.log(e);
   }
 }
 
-// COPY
+/* COPY API */
 function copyKey(){
   navigator.clipboard.writeText(document.getElementById("apikey").value);
-  notif.innerText="✅ API Key disalin";
-  notif.className="notif success";
-  notif.style.display="block";
+  showNotif("API KEY disalin", true);
 }
 
-// LOGOUT
-function logout(){
-  localStorage.removeItem("token");
-  location.href="/";
-}
-
-// REGENERATE
+/* REGEN */
 async function regenKey(){
   const token = localStorage.getItem("token");
 
@@ -204,13 +241,13 @@ async function regenKey(){
 
   if(data.success){
     document.getElementById("apikey").value = data.apiKey;
-    notif.innerText="✅ API Key baru dibuat";
-    notif.className="notif success";
-    notif.style.display="block";
+    showNotif("API KEY baru dibuat", true);
+  }else{
+    showNotif("Gagal regenerate", false);
   }
 }
 
-// CREATE DEPOSIT
+/* DEPOSIT */
 async function createDeposit(){
   const amount = document.getElementById("amount").value;
   const token = localStorage.getItem("token");
@@ -232,178 +269,53 @@ async function createDeposit(){
   document.getElementById("loading").style.display="none";
 
   if(data.success){
-    document.getElementById("qr").innerHTML = `
-      <p>Scan QRIS:</p>
+    document.getElementById("qr").innerHTML=`
+      <p>Scan QRIS</p>
       <img src="${data.data.qrImage}">
       <p>Rp${data.data.totalAmount}</p>
     `;
 
     cekStatus(data.data.depositId);
   }else{
-    notif.innerText="❌ Gagal deposit";
-    notif.className="notif error";
-    notif.style.display="block";
+    showNotif("Deposit gagal", false);
   }
 }
 
-// CEK STATUS
+/* CEK STATUS */
 function cekStatus(id){
   const interval = setInterval(async ()=>{
     const res = await fetch(`/api/deposit/status?depositId=${id}`);
     const data = await res.json();
 
-    if(data.status === "success"){
+    if(data.status==="success"){
       clearInterval(interval);
-
-      notif.innerText="✅ Pembayaran berhasil!";
-      notif.className="notif success";
-      notif.style.display="block";
-
+      showNotif("Pembayaran berhasil!", true);
       loadUser();
     }
   },5000);
 }
 
-// INIT
-loadUser();
-</script>
-
-</body>
-</html>  <h3>🔑 API KEY</h3>
-  <div class="api-box">
-    <input id="apikey" readonly>
-    <button onclick="copyKey()">📋</button>
-  </div>
-  <button onclick="regenKey()">🔄 Regenerate</button>
-</div>
-
-<!-- DEPOSIT -->
-<div class="card">
-  <h3>💳 Deposit</h3>
-  <input id="amount" placeholder="Masukkan nominal">
-
-  <button onclick="createDeposit()">Deposit</button>
-
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p>Memproses pembayaran...</p>
-  </div>
-
-  <div class="qr" id="qr"></div>
-  <div id="notif" class="notif"></div>
-</div>
-
-<script>
-const notif = document.getElementById("notif");
-
-// LOAD USER
-async function loadUser(){
-  const token = localStorage.getItem("token");
-
-  const res = await fetch("/api/user/me",{
-    headers:{ authorization:token }
-  });
-
-  const data = await res.json();
-
-  if(data.success){
-    document.getElementById("saldo").innerText =
-      "Rp"+data.data.saldo.toLocaleString("id-ID");
-
-    document.getElementById("apikey").value = data.data.apiKey;
-  }
-}
-
-// COPY
-function copyKey(){
-  navigator.clipboard.writeText(document.getElementById("apikey").value);
-  notif.innerText="✅ API Key disalin";
-  notif.className="notif success";
+/* NOTIF */
+function showNotif(msg, ok){
+  notif.innerText = msg;
+  notif.className = "notif " + (ok ? "success":"error");
   notif.style.display="block";
 }
 
-// LOGOUT
+/* NAV */
 function logout(){
   localStorage.removeItem("token");
   location.href="/";
 }
-
-// REGENERATE
-async function regenKey(){
-  const token = localStorage.getItem("token");
-
-  const res = await fetch("/api/user/regen",{
-    method:"POST",
-    headers:{ authorization:token }
-  });
-
-  const data = await res.json();
-
-  if(data.success){
-    document.getElementById("apikey").value = data.apiKey;
-    notif.innerText="✅ API Key baru dibuat";
-    notif.className="notif success";
-    notif.style.display="block";
-  }
+function scrollDeposit(){
+  document.getElementById("depositCard").scrollIntoView({behavior:"smooth"});
+}
+function scrollToTop(){
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
-// CREATE DEPOSIT
-async function createDeposit(){
-  const amount = document.getElementById("amount").value;
-  const token = localStorage.getItem("token");
-
-  document.getElementById("loading").style.display="block";
-  document.getElementById("qr").innerHTML="";
-
-  const res = await fetch("/api/deposit/create",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      authorization:token
-    },
-    body:JSON.stringify({ amount })
-  });
-
-  const data = await res.json();
-
-  document.getElementById("loading").style.display="none";
-
-  if(data.success){
-    document.getElementById("qr").innerHTML = `
-      <p>Scan QRIS:</p>
-      <img src="${data.data.qrImage}">
-      <p>Rp${data.data.totalAmount}</p>
-    `;
-
-    cekStatus(data.data.depositId);
-  }else{
-    notif.innerText="❌ Gagal deposit";
-    notif.className="notif error";
-    notif.style.display="block";
-  }
-}
-
-// CEK STATUS
-function cekStatus(id){
-  const interval = setInterval(async ()=>{
-    const res = await fetch(`/api/deposit/status?depositId=${id}`);
-    const data = await res.json();
-
-    if(data.status === "success"){
-      clearInterval(interval);
-
-      notif.innerText="✅ Pembayaran berhasil!";
-      notif.className="notif success";
-      notif.style.display="block";
-
-      loadUser();
-    }
-  },5000);
-}
-
-// INIT
 loadUser();
 </script>
 
 </body>
-  </html>
+</html>
