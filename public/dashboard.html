@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard VINN PAY</title>
+<title>VINN PAY</title>
 
 <style>
 body{
@@ -20,7 +20,7 @@ body{
   font-weight:bold;
 }
 
-/* CARD SALDO */
+/* CARD */
 .card{
   margin:20px;
   padding:20px;
@@ -30,6 +30,7 @@ body{
   box-shadow:0 0 40px rgba(0,0,0,0.7);
 }
 
+/* SALDO */
 .saldo{
   font-size:28px;
   font-weight:bold;
@@ -96,12 +97,6 @@ button{
   from{opacity:0; transform:scale(0.8);}
   to{opacity:1; transform:scale(1);}
 }
-
-/* STATUS */
-.status{
-  margin-top:10px;
-  text-align:center;
-}
 </style>
 </head>
 
@@ -109,11 +104,24 @@ button{
 
 <div class="header">💎 VINN PAY DASHBOARD</div>
 
+<!-- USER -->
 <div class="card">
   <div>Email: <span id="email"></span></div>
   <div class="saldo">Rp <span id="saldo">0</span></div>
 </div>
 
+<!-- API KEY -->
+<div class="card">
+  <h3>🔑 API KEY</h3>
+  <p id="apikey"></p>
+  <p>Request: <span id="req">0</span></p>
+  <p>Last Used: <span id="last">-</span></p>
+
+  <button onclick="copyKey()">📋 Copy API Key</button>
+  <button onclick="regenKey()">🔄 Regenerate</button>
+</div>
+
+<!-- DEPOSIT -->
 <div class="card">
   <h3>💳 Deposit Saldo</h3>
   <input id="amount" placeholder="Masukkan nominal">
@@ -127,14 +135,14 @@ button{
 
   <div class="qr" id="qrBox">
     <img id="qrImg">
-    <div class="status" id="status">Menunggu pembayaran...</div>
+    <p id="status">Menunggu pembayaran...</p>
   </div>
 </div>
 
 <script>
 const token = localStorage.getItem("token");
 
-// LOAD USER
+// ================= LOAD USER =================
 async function loadUser(){
   const res = await fetch("/api/user", {
     headers:{ authorization: token }
@@ -143,10 +151,31 @@ async function loadUser(){
 
   document.getElementById("email").innerText = data.email;
   document.getElementById("saldo").innerText = data.saldo.toLocaleString("id-ID");
+
+  document.getElementById("apikey").innerText = data.apiKey;
+  document.getElementById("req").innerText = data.requestCount || 0;
+  document.getElementById("last").innerText = data.lastUsed || "-";
 }
 loadUser();
 
-// DEPOSIT
+// ================= COPY API =================
+function copyKey(){
+  navigator.clipboard.writeText(document.getElementById("apikey").innerText);
+  alert("API Key berhasil disalin!");
+}
+
+// ================= REGEN API =================
+async function regenKey(){
+  await fetch("/api/user/regen", {
+    method:"POST",
+    headers:{ authorization: token }
+  });
+
+  alert("API Key diganti!");
+  loadUser();
+}
+
+// ================= DEPOSIT =================
 async function deposit(){
   const amount = document.getElementById("amount").value;
 
@@ -155,13 +184,15 @@ async function deposit(){
 
   const res = await fetch("/api/deposit/create", {
     method:"POST",
-    headers:{"Content-Type":"application/json"},
+    headers:{
+      "Content-Type":"application/json",
+      authorization: token
+    },
     body: JSON.stringify({ amount })
   });
 
   const data = await res.json();
 
-  // delay biar animasi hidup
   setTimeout(()=>{
     document.getElementById("loading").style.display="none";
     document.getElementById("qrBox").style.display="block";
@@ -169,7 +200,6 @@ async function deposit(){
     document.getElementById("qrImg").src = data.data.qrImage;
   },2000);
 
-  // CEK STATUS
   const id = data.data.depositId;
 
   const interval = setInterval(async()=>{
@@ -180,7 +210,6 @@ async function deposit(){
       document.getElementById("status").innerText = "✅ Pembayaran berhasil!";
       clearInterval(interval);
 
-      // refresh saldo
       loadUser();
     }
   },5000);
