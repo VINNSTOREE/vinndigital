@@ -1,0 +1,68 @@
+<h2 id="saldo">Loading...</h2>
+
+<button onclick="deposit()">Deposit</button>
+
+<div id="qr"></div>
+<ul id="history"></ul>
+
+<script>
+const token = localStorage.getItem("token");
+
+async function loadUser(){
+  const res = await fetch("/api/user", {
+    headers:{ authorization: token }
+  });
+  const data = await res.json();
+
+  saldo.innerText = "Saldo: Rp " + data.saldo;
+}
+
+async function deposit(){
+  const amount = prompt("Nominal");
+
+  const res = await fetch("/api/deposit/create", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      authorization: token
+    },
+    body: JSON.stringify({ amount })
+  });
+
+  const data = await res.json();
+  qr.innerHTML = `<img src="${data.data.qrImage}" width="200">`;
+
+  cek(data.data.depositId);
+}
+
+function cek(id){
+  const i = setInterval(async ()=>{
+    const res = await fetch(`/api/deposit/status?id=${id}`, {
+      headers:{ authorization: token }
+    });
+
+    const data = await res.json();
+
+    if(data.data.status === "success"){
+      clearInterval(i);
+      alert("Saldo masuk!");
+      loadUser();
+      loadHistory();
+    }
+  },15000);
+}
+
+async function loadHistory(){
+  const res = await fetch("/api/history", {
+    headers:{ authorization: token }
+  });
+  const data = await res.json();
+
+  history.innerHTML = data.map(x =>
+    `<li>${x.amount} - ${x.status}</li>`
+  ).join("");
+}
+
+loadUser();
+loadHistory();
+</script>
