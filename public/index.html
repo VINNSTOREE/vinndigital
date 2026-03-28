@@ -24,23 +24,8 @@ body {
   border-radius:20px;
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(20px);
-  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
   text-align:center;
-  animation: fade 0.7s ease;
-}
-
-@keyframes fade {
-  from {opacity:0; transform:translateY(20px);}
-  to {opacity:1;}
-}
-
-h2 {
-  margin-bottom:10px;
-}
-
-p {
-  font-size:13px;
-  opacity:0.7;
 }
 
 /* INPUT */
@@ -72,20 +57,61 @@ button:hover {
   transform: scale(1.05);
 }
 
-/* FOOTER */
-.footer {
+/* LOADING */
+.loading {
+  display:none;
   margin-top:10px;
-  font-size:12px;
-  opacity:0.6;
+}
+
+.spinner {
+  border:3px solid rgba(255,255,255,0.2);
+  border-top:3px solid #3b82f6;
+  border-radius:50%;
+  width:25px;
+  height:25px;
+  animation: spin 1s linear infinite;
+  margin:auto;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+/* NOTIF */
+.notif {
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  display:none;
+}
+
+.success {
+  background:#16a34a;
+}
+
+.error {
+  background:#dc2626;
+}
+
+/* SHAKE */
+.shake {
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="card" id="card">
   <h2>💳 VINN PAY</h2>
-  <p>Login ke akun kamu</p>
 
   <input id="email" placeholder="Email">
   <input id="pass" type="password" placeholder="Password">
@@ -93,41 +119,104 @@ button:hover {
   <button onclick="login()">Login</button>
   <button onclick="register()">Register</button>
 
-  <div class="footer">Secure Payment System</div>
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Memproses...</p>
+  </div>
+
+  <div id="notif" class="notif"></div>
 </div>
 
 <script>
+const loading = document.getElementById("loading");
+const notif = document.getElementById("notif");
+const card = document.getElementById("card");
+
+function showLoading(state){
+  loading.style.display = state ? "block" : "none";
+}
+
+function showNotif(text, type){
+  notif.innerText = text;
+  notif.className = "notif " + type;
+  notif.style.display = "block";
+}
+
+function shake(){
+  card.classList.add("shake");
+  setTimeout(()=>card.classList.remove("shake"),300);
+}
+
+// LOGIN
 async function login(){
-  const res = await fetch("/api/auth/login", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      email: email.value,
-      password: pass.value
-    })
-  });
+  showLoading(true);
+  notif.style.display="none";
 
-  const data = await res.json();
+  try {
+    const res = await fetch("/api/auth/login", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        email: email.value,
+        password: pass.value
+      })
+    });
 
-  if(data.success){
-    localStorage.setItem("token", data.token);
-    location.href="/dashboard.html";
-  } else {
-    alert("❌ Login gagal");
+    const data = await res.json();
+
+    showLoading(false);
+
+    if(data.success){
+      showNotif("✅ Login berhasil!", "success");
+      localStorage.setItem("token", data.token);
+
+      setTimeout(()=>{
+        location.href="/dashboard.html";
+      },1000);
+
+    } else {
+      showNotif("❌ " + data.message, "error");
+      shake();
+    }
+
+  } catch (err){
+    showLoading(false);
+    showNotif("❌ Server error", "error");
+    shake();
   }
 }
 
+// REGISTER
 async function register(){
-  await fetch("/api/auth/register", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      email: email.value,
-      password: pass.value
-    })
-  });
+  showLoading(true);
+  notif.style.display="none";
 
-  alert("✅ Register berhasil");
+  try {
+    const res = await fetch("/api/auth/register", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        email: email.value,
+        password: pass.value
+      })
+    });
+
+    const data = await res.json();
+
+    showLoading(false);
+
+    if(data.success){
+      showNotif("✅ Register berhasil!", "success");
+    } else {
+      showNotif("❌ " + data.message, "error");
+      shake();
+    }
+
+  } catch (err){
+    showLoading(false);
+    showNotif("❌ Server error", "error");
+    shake();
+  }
 }
 </script>
 
