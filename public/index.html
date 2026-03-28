@@ -19,24 +19,23 @@ body{
 
 /* CARD */
 .card{
-  width:320px;
+  width:340px;
   padding:25px;
   border-radius:20px;
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(20px);
   box-shadow:0 0 40px rgba(0,0,0,0.7);
   text-align:center;
-  animation:fadeIn 0.6s ease;
+  transition:0.5s;
 }
 
 .card:hover{
-  box-shadow:0 0 60px rgba(59,130,246,0.4);
-  transition:0.3s;
+  box-shadow:0 0 60px rgba(59,130,246,0.5);
 }
 
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(20px);}
-  to{opacity:1;}
+/* TITLE */
+h2{
+  margin-bottom:10px;
 }
 
 /* INPUT */
@@ -66,11 +65,18 @@ button:hover{
   transform:scale(1.05);
 }
 
+/* SWITCH */
+.switch{
+  margin-top:10px;
+  font-size:13px;
+  cursor:pointer;
+  color:#60a5fa;
+}
+
 /* LOADING */
 .loading{
   display:none;
   margin-top:10px;
-  text-align:center;
 }
 
 .spinner{
@@ -93,26 +99,18 @@ button:hover{
   padding:10px;
   border-radius:10px;
   display:none;
-  color:white;
   font-weight:bold;
-  animation:fadeNotif 0.3s ease;
 }
 
 .success{
-  background:linear-gradient(90deg,#16a34a,#22c55e);
-  box-shadow:0 0 10px rgba(34,197,94,0.6);
+  background:#16a34a;
 }
 
 .error{
-  background:linear-gradient(90deg,#dc2626,#ef4444);
-  box-shadow:0 0 10px rgba(239,68,68,0.6);
+  background:#dc2626;
 }
 
-@keyframes fadeNotif{
-  from{opacity:0; transform:translateY(5px);}
-  to{opacity:1;}
-}
-
+/* SHAKE */
 .shake{
   animation:shake 0.3s;
 }
@@ -121,22 +119,43 @@ button:hover{
   25%{transform:translateX(-5px);}
   50%{transform:translateX(5px);}
 }
+
+/* ANIM FORM */
+.form{
+  transition:0.4s;
+}
+.hidden{
+  opacity:0;
+  transform:translateX(50px);
+  position:absolute;
+}
 </style>
 </head>
 
 <body>
 
 <div class="card" id="card">
-  <h2>💎 VINN PAY</h2>
+  <h2 id="title">💎 LOGIN</h2>
 
-  <input id="email" placeholder="Email">
-  <input id="pass" type="password" placeholder="Password">
+  <!-- LOGIN -->
+  <div id="loginForm" class="form">
+    <input id="email" placeholder="Email">
+    <input id="pass" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <div class="switch" onclick="showRegister()">Belum punya akun? Daftar</div>
+  </div>
 
-  <button onclick="login()">Login</button>
+  <!-- REGISTER -->
+  <div id="registerForm" class="form hidden">
+    <input id="emailReg" placeholder="Email">
+    <input id="passReg" type="password" placeholder="Password">
+    <button onclick="register()">Daftar</button>
+    <div class="switch" onclick="showLogin()">Sudah punya akun? Login</div>
+  </div>
 
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <p>Memproses login...</p>
+    <p>Memproses...</p>
   </div>
 
   <div id="notif" class="notif"></div>
@@ -147,49 +166,75 @@ const loading = document.getElementById("loading");
 const notif = document.getElementById("notif");
 const card = document.getElementById("card");
 
+// SWITCH FORM
+function showRegister(){
+  title.innerText="💎 REGISTER";
+  loginForm.classList.add("hidden");
+  registerForm.classList.remove("hidden");
+}
+
+function showLogin(){
+  title.innerText="💎 LOGIN";
+  registerForm.classList.add("hidden");
+  loginForm.classList.remove("hidden");
+}
+
+// LOGIN
 async function login(){
   loading.style.display="block";
-  notif.style.display="none";
 
-  try{
-    const res = await fetch("/api/auth/login",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        email:email.value,
-        password:pass.value
-      })
-    });
+  const res = await fetch("/api/auth/login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email:email.value,
+      password:pass.value
+    })
+  });
 
-    const data = await res.json();
+  const data = await res.json();
+  loading.style.display="none";
 
-    loading.style.display="none";
+  if(data.success){
+    notif.innerText="✅ Login berhasil";
+    notif.className="notif success";
+    notif.style.display="block";
 
-    if(data.success){
-      notif.innerText="✅ Login berhasil!";
-      notif.className="notif success";
-      notif.style.display="block";
+    localStorage.setItem("token",data.token);
 
-      localStorage.setItem("token", data.token);
+    setTimeout(()=>location.href="/dashboard.html",800);
+  }else{
+    notif.innerText="❌ "+data.message;
+    notif.className="notif error";
+    notif.style.display="block";
+    card.classList.add("shake");
+    setTimeout(()=>card.classList.remove("shake"),300);
+  }
+}
 
-      setTimeout(()=>{
-        document.body.style.opacity="0";
-        setTimeout(()=>{
-          location.href="/dashboard.html";
-        },300);
-      },800);
+// REGISTER
+async function register(){
+  loading.style.display="block";
 
-    } else {
-      notif.innerText="❌ "+data.message;
-      notif.className="notif error";
-      notif.style.display="block";
-      card.classList.add("shake");
-      setTimeout(()=>card.classList.remove("shake"),300);
-    }
+  const res = await fetch("/api/auth/register",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      email:emailReg.value,
+      password:passReg.value
+    })
+  });
 
-  }catch(err){
-    loading.style.display="none";
-    notif.innerText="❌ Server error";
+  const data = await res.json();
+  loading.style.display="none";
+
+  if(data.success){
+    notif.innerText="✅ Berhasil daftar, silakan login";
+    notif.className="notif success";
+    notif.style.display="block";
+    showLogin();
+  }else{
+    notif.innerText="❌ "+data.message;
     notif.className="notif error";
     notif.style.display="block";
     card.classList.add("shake");
