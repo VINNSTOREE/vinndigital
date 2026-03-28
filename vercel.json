@@ -1,6 +1,6 @@
 {
   "routes": [
-    { "src": "/api/create", "dest": "/api/create.js" },
-    { "src": "/api/status", "dest": "/api/status.js" }
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/", "dest": "/public/index.html" }
   ]
 }
