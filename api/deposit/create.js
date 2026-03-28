@@ -1,12 +1,17 @@
 const { getDB } = require("../../lib/db");
+const { CONFIG } = require("../../lib/config");
 
 module.exports = async function handler(req, res){
-  try{
+  try {
     const apiKey = req.headers["x-api-key"];
     const { amount } = req.body;
 
     if(!apiKey){
       return res.json({ success:false, message:"API KEY wajib" });
+    }
+
+    if(!amount || isNaN(amount)){
+      return res.json({ success:false, message:"Amount tidak valid" });
     }
 
     const db = await getDB();
@@ -17,40 +22,52 @@ module.exports = async function handler(req, res){
       return res.json({ success:false, message:"API KEY tidak valid" });
     }
 
-    // 🔥 HIT API RAMASHOP
     const fetch = require("node-fetch");
 
     const create = await fetch("https://ramashop.my.id/api/public/deposit/create",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "X-API-Key":"rg_92de2603ed65af6487074222c8757a"
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": CONFIG.API_KEY   // 🔥 FIX DI SINI
       },
-      body:JSON.stringify({ amount })
+      body: JSON.stringify({
+        amount: Number(amount)
+      })
     });
 
     const result = await create.json();
 
+    console.log("RAMASHOP RESPONSE:", result);
+
     if(!result.success){
-      return res.json({ success:false });
+      return res.json({
+        success:false,
+        message: result.message || "Gagal create deposit",
+        debug: result
+      });
     }
 
-    // simpan transaksi
     await db.collection("deposits").insertOne({
       userId: user._id,
       depositId: result.data.depositId,
-      amount: result.data.amount,
+      amount: Number(amount),
       total: result.data.totalAmount,
-      status: "pending"
+      status: "pending",
+      createdAt: new Date()
     });
 
-    res.json({
+    return res.json({
       success:true,
       data: result.data
     });
 
-  }catch(err){
-    console.log(err);
-    res.json({ success:false });
+  } catch(err){
+    console.log("DEPOSIT ERROR:", err);
+
+    return res.json({
+      success:false,
+      message:"Server error",
+      error: err.message
+    });
   }
-}
+};
