@@ -1,13 +1,27 @@
-// api/user.js
 import { getDB } from "../lib/db.js";
 import { verifyToken } from "../lib/auth.js";
 
 export default async function handler(req, res) {
-  const user = verifyToken(req);
-  if (!user) return res.status(401).json({ success: false });
+  try {
+    const userData = verifyToken(req);
+    if (!userData) {
+      return res.status(401).json({ success: false });
+    }
 
-  const db = await getDB();
-  const data = await db.collection("users").findOne({ email: user.email });
+    const db = await getDB();
 
-  res.json({ email: data.email, saldo: data.saldo });
+    const user = await db.collection("users").findOne({
+      email: userData.email
+    });
+
+    res.status(200).json({
+      email: user.email,
+      saldo: user.saldo
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: err.message
+    });
+  }
 }
