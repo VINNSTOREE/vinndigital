@@ -1,9 +1,62 @@
-<h2 id="saldo">Loading...</h2>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<button onclick="deposit()">Deposit</button>
+<style>
+body {
+  margin:0;
+  font-family:'Poppins', sans-serif;
+  background: linear-gradient(135deg,#020617,#1e293b);
+  color:white;
+  padding:20px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  padding:20px;
+  border-radius:20px;
+  margin-bottom:15px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+.btn {
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:15px;
+  font-size:16px;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+.deposit { background:#1d4ed8; }
+.history { background:#10b981; }
+
+img {
+  margin-top:15px;
+  width:200px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Dashboard</h2>
+
+<div class="card">
+  <h3 id="saldo">Rp 0</h3>
+</div>
+
+<button class="btn deposit" onclick="deposit()">Deposit</button>
 
 <div id="qr"></div>
-<ul id="history"></ul>
+
+<div class="card">
+  <h3>Riwayat</h3>
+  <ul id="history"></ul>
+</div>
 
 <script>
 const token = localStorage.getItem("token");
@@ -12,13 +65,13 @@ async function loadUser(){
   const res = await fetch("/api/user", {
     headers:{ authorization: token }
   });
-  const data = await res.json();
 
-  saldo.innerText = "Saldo: Rp " + data.saldo;
+  const data = await res.json();
+  saldo.innerText = "Rp " + data.saldo;
 }
 
 async function deposit(){
-  const amount = prompt("Nominal");
+  const amount = prompt("Masukkan nominal");
 
   const res = await fetch("/api/deposit/create", {
     method:"POST",
@@ -30,7 +83,8 @@ async function deposit(){
   });
 
   const data = await res.json();
-  qr.innerHTML = `<img src="${data.data.qrImage}" width="200">`;
+
+  qr.innerHTML = `<img src="${data.data.qrImage}">`;
 
   cek(data.data.depositId);
 }
@@ -45,7 +99,7 @@ function cek(id){
 
     if(data.data.status === "success"){
       clearInterval(i);
-      alert("Saldo masuk!");
+      alert("✅ Saldo masuk");
       loadUser();
       loadHistory();
     }
@@ -56,13 +110,17 @@ async function loadHistory(){
   const res = await fetch("/api/history", {
     headers:{ authorization: token }
   });
+
   const data = await res.json();
 
   history.innerHTML = data.map(x =>
-    `<li>${x.amount} - ${x.status}</li>`
+    `<li>Rp ${x.amount} - ${x.status}</li>`
   ).join("");
 }
 
 loadUser();
 loadHistory();
 </script>
+
+</body>
+</html>
