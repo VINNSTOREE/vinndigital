@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VINN PAY</title>
+<title>VINN PAY Dashboard</title>
 
 <style>
 body{
@@ -11,7 +11,6 @@ body{
   font-family:Poppins;
   background:linear-gradient(135deg,#020617,#0f172a);
   color:white;
-  overflow-x:hidden;
 }
 
 /* HEADER */
@@ -21,39 +20,26 @@ body{
   font-weight:bold;
   display:flex;
   justify-content:space-between;
-  align-items:center;
-}
-
-.logout-btn{
-  background:red;
-  padding:8px 15px;
-  border:none;
-  border-radius:10px;
-  color:white;
-  cursor:pointer;
 }
 
 /* CARD */
 .card{
-  margin:20px;
+  margin:15px;
   padding:20px;
   border-radius:20px;
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(20px);
-  box-shadow:0 0 40px rgba(0,0,0,0.7);
-  animation:fadeIn 0.6s ease;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(20px);}
-  to{opacity:1; transform:translateY(0);}
-}
-
+/* SALDO */
 .saldo{
-  font-size:28px;
+  font-size:25px;
   font-weight:bold;
+  color:#22c55e;
 }
 
+/* INPUT */
 input{
   width:100%;
   padding:12px;
@@ -62,6 +48,7 @@ input{
   margin-top:10px;
 }
 
+/* BUTTON */
 button{
   width:100%;
   padding:12px;
@@ -72,11 +59,27 @@ button{
   color:white;
   font-weight:bold;
   cursor:pointer;
-  transition:0.3s;
 }
 
-button:hover{
-  transform:scale(1.05);
+/* API */
+.api-box{
+  display:flex;
+  gap:10px;
+}
+.api-box input{
+  flex:1;
+  background:#020617;
+  color:#22c55e;
+}
+
+/* QR */
+.qr{
+  text-align:center;
+  margin-top:15px;
+}
+.qr img{
+  width:200px;
+  border-radius:10px;
 }
 
 /* LOADING */
@@ -84,76 +87,32 @@ button:hover{
   display:none;
   text-align:center;
 }
-
 .spinner{
-  width:40px;
-  height:40px;
-  border:4px solid rgba(255,255,255,0.2);
-  border-top:4px solid #3b82f6;
+  border:3px solid rgba(255,255,255,0.2);
+  border-top:3px solid #3b82f6;
   border-radius:50%;
+  width:30px;
+  height:30px;
   animation:spin 1s linear infinite;
   margin:auto;
 }
-
 @keyframes spin{
   100%{transform:rotate(360deg);}
 }
 
-/* QR */
-.qr{
+/* NOTIF */
+.notif{
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
   display:none;
-  text-align:center;
 }
+.success{ background:#16a34a; }
+.error{ background:#dc2626; }
 
-.qr img{
-  width:200px;
-  border-radius:20px;
-  box-shadow:0 0 20px #3b82f6;
-  animation:zoomIn 0.5s ease;
-}
-
-@keyframes zoomIn{
-  from{opacity:0; transform:scale(0.7);}
-  to{opacity:1; transform:scale(1);}
-}
-
-/* MODAL LOGOUT */
-.modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.7);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  opacity:0;
-  pointer-events:none;
-  transition:0.3s;
-}
-
-.modal.show{
-  opacity:1;
-  pointer-events:auto;
-}
-
-.modal-content{
-  background:#0f172a;
-  padding:25px;
-  border-radius:15px;
-  text-align:center;
-  animation:scaleIn 0.3s ease;
-}
-
-@keyframes scaleIn{
-  from{transform:scale(0.7);}
-  to{transform:scale(1);}
-}
-
-.modal button{
-  width:auto;
-  margin:5px;
+/* LOGOUT */
+.logout{
+  background:#ef4444;
 }
 </style>
 </head>
@@ -162,139 +121,152 @@ button:hover{
 
 <div class="header">
   💎 VINN PAY
-  <button class="logout-btn" onclick="openLogout()">Logout</button>
+  <button class="logout" onclick="logout()">Logout</button>
 </div>
 
+<!-- SALDO -->
 <div class="card">
-  <div>Email: <span id="email"></span></div>
-  <div class="saldo">Rp <span id="saldo">0</span></div>
+  <div>Saldo Anda</div>
+  <div class="saldo" id="saldo">Rp0</div>
 </div>
 
+<!-- API KEY -->
 <div class="card">
   <h3>🔑 API KEY</h3>
-  <p id="apikey"></p>
-  <p>Request: <span id="req"></span></p>
-  <p>Last Used: <span id="last"></span></p>
-
-  <button onclick="copyKey()">📋 Copy API Key</button>
+  <div class="api-box">
+    <input id="apikey" readonly>
+    <button onclick="copyKey()">📋</button>
+  </div>
   <button onclick="regenKey()">🔄 Regenerate</button>
 </div>
 
+<!-- DEPOSIT -->
 <div class="card">
   <h3>💳 Deposit</h3>
-  <input id="amount" placeholder="Nominal">
+  <input id="amount" placeholder="Masukkan nominal">
 
-  <button onclick="deposit()">🚀 Deposit</button>
+  <button onclick="createDeposit()">Deposit</button>
 
   <div class="loading" id="loading">
     <div class="spinner"></div>
     <p>Memproses pembayaran...</p>
   </div>
 
-  <div class="qr" id="qrBox">
-    <img id="qrImg">
-    <p id="status">Menunggu pembayaran...</p>
-  </div>
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="logoutModal">
-  <div class="modal-content">
-    <h3>Keluar Akun?</h3>
-    <p>Yakin mau logout?</p>
-    <button onclick="confirmLogout()">Ya</button>
-    <button onclick="closeLogout()">Batal</button>
-  </div>
+  <div class="qr" id="qr"></div>
+  <div id="notif" class="notif"></div>
 </div>
 
 <script>
-const token = localStorage.getItem("token");
-
-// PROTEKSI
-if(!token){
-  location.href="/";
-}
+const notif = document.getElementById("notif");
 
 // LOAD USER
 async function loadUser(){
-  const res = await fetch("/api/user",{headers:{authorization:token}});
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/api/user/me",{
+    headers:{ authorization:token }
+  });
+
   const data = await res.json();
 
-  email.innerText=data.email;
-  saldo.innerText=data.saldo.toLocaleString("id-ID");
-  apikey.innerText=data.apiKey;
-  req.innerText=data.requestCount||0;
-  last.innerText=data.lastUsed||"-";
+  if(data.success){
+    document.getElementById("saldo").innerText =
+      "Rp"+data.data.saldo.toLocaleString("id-ID");
+
+    document.getElementById("apikey").value = data.data.apiKey;
+  }
 }
-loadUser();
 
 // COPY
 function copyKey(){
-  navigator.clipboard.writeText(apikey.innerText);
-  alert("API Key disalin!");
+  navigator.clipboard.writeText(document.getElementById("apikey").value);
+  notif.innerText="✅ API Key disalin";
+  notif.className="notif success";
+  notif.style.display="block";
 }
 
-// REGEN
+// LOGOUT
+function logout(){
+  localStorage.removeItem("token");
+  location.href="/";
+}
+
+// REGENERATE
 async function regenKey(){
-  await fetch("/api/user/regen",{method:"POST",headers:{authorization:token}});
-  loadUser();
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/api/user/regen",{
+    method:"POST",
+    headers:{ authorization:token }
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+    document.getElementById("apikey").value = data.apiKey;
+    notif.innerText="✅ API Key baru dibuat";
+    notif.className="notif success";
+    notif.style.display="block";
+  }
 }
 
-// DEPOSIT
-async function deposit(){
-  const amount=amountInput.value;
+// CREATE DEPOSIT
+async function createDeposit(){
+  const amount = document.getElementById("amount").value;
+  const token = localStorage.getItem("token");
 
-  loading.style.display="block";
-  qrBox.style.display="none";
+  document.getElementById("loading").style.display="block";
+  document.getElementById("qr").innerHTML="";
 
-  const res=await fetch("/api/deposit/create",{
+  const res = await fetch("/api/deposit/create",{
     method:"POST",
     headers:{
       "Content-Type":"application/json",
       authorization:token
     },
-    body:JSON.stringify({amount})
+    body:JSON.stringify({ amount })
   });
 
-  const data=await res.json();
+  const data = await res.json();
 
-  setTimeout(()=>{
-    loading.style.display="none";
-    qrBox.style.display="block";
-    qrImg.src=data.data.qrImage;
-  },2000);
+  document.getElementById("loading").style.display="none";
 
-  const id=data.data.depositId;
+  if(data.success){
+    document.getElementById("qr").innerHTML = `
+      <p>Scan QRIS:</p>
+      <img src="${data.data.qrImage}">
+      <p>Rp${data.data.totalAmount}</p>
+    `;
 
-  const interval=setInterval(async()=>{
-    const cek=await fetch("/api/deposit/status?id="+id);
-    const resCek=await cek.json();
+    cekStatus(data.data.depositId);
+  }else{
+    notif.innerText="❌ Gagal deposit";
+    notif.className="notif error";
+    notif.style.display="block";
+  }
+}
 
-    if(resCek.data.status==="success"){
-      status.innerText="✅ Berhasil!";
+// CEK STATUS
+function cekStatus(id){
+  const interval = setInterval(async ()=>{
+    const res = await fetch(`/api/deposit/status?depositId=${id}`);
+    const data = await res.json();
+
+    if(data.status === "success"){
       clearInterval(interval);
+
+      notif.innerText="✅ Pembayaran berhasil!";
+      notif.className="notif success";
+      notif.style.display="block";
+
       loadUser();
     }
   },5000);
 }
 
-// LOGOUT MODAL
-function openLogout(){
-  logoutModal.classList.add("show");
-}
-
-function closeLogout(){
-  logoutModal.classList.remove("show");
-}
-
-function confirmLogout(){
-  document.body.style.opacity="0";
-  setTimeout(()=>{
-    localStorage.removeItem("token");
-    location.href="/";
-  },500);
-}
+// INIT
+loadUser();
 </script>
 
 </body>
-</html>
+  </html>
