@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>VINN API DOCS</title>
+<style>
+body{
+  font-family:Poppins;
+  background:#020617;
+  color:white;
+  padding:20px;
+}
+.card{
+  background:#0f172a;
+  padding:20px;
+  border-radius:15px;
+  margin-bottom:20px;
+}
+code{
+  background:black;
+  padding:10px;
+  display:block;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🚀 VINN PAYMENT API</h2>
+
+<div class="card">
+<h3>🔐 Headers</h3>
+<code>
+Authorization: TOKEN_USER
+</code>
+</div>
+
+<div class="card">
+<h3>💳 CREATE DEPOSIT</h3>
+<code>
+POST /api/deposit/create
+
+{
+  "amount": 10000
+}
+</code>
+</div>
+
+<div class="card">
+<h3>🔍 CEK STATUS</h3>
+<code>
+GET /api/deposit/status?id=DEP_ID
+</code>
+</div>
+
+<div class="card">
+<h3>⚡ NOTE</h3>
+<p>Jika pembayaran berhasil → saldo otomatis masuk ke akun user</p>
+</div>
+
+</body>
+</html>
