@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VINN GATEWA🔥</title>
+<title>VINN GATEWAY 🔥</title>
 
 <style>
 body{
@@ -27,6 +27,11 @@ body{
   box-shadow:0 0 40px rgba(0,0,0,0.7);
   text-align:center;
   animation:fadeIn 0.6s ease;
+}
+
+.card:hover{
+  box-shadow:0 0 60px rgba(59,130,246,0.4);
+  transition:0.3s;
 }
 
 @keyframes fadeIn{
@@ -65,14 +70,15 @@ button:hover{
 .loading{
   display:none;
   margin-top:10px;
+  text-align:center;
 }
 
 .spinner{
-  width:25px;
-  height:25px;
   border:3px solid rgba(255,255,255,0.2);
   border-top:3px solid #3b82f6;
   border-radius:50%;
+  width:25px;
+  height:25px;
   animation:spin 1s linear infinite;
   margin:auto;
 }
@@ -87,15 +93,27 @@ button:hover{
   padding:10px;
   border-radius:10px;
   display:none;
+  color:white;
+  font-weight:bold;
+  animation:fadeNotif 0.3s ease;
 }
 
 .success{
-  background:#16a34a;
-  animation:pop 0.4s;
+  background:linear-gradient(90deg,#16a34a,#22c55e);
+  box-shadow:0 0 10px rgba(34,197,94,0.6);
 }
 
 .error{
-  background:#dc2626;
+  background:linear-gradient(90deg,#dc2626,#ef4444);
+  box-shadow:0 0 10px rgba(239,68,68,0.6);
+}
+
+@keyframes fadeNotif{
+  from{opacity:0; transform:translateY(5px);}
+  to{opacity:1;}
+}
+
+.shake{
   animation:shake 0.3s;
 }
 
@@ -103,17 +121,12 @@ button:hover{
   25%{transform:translateX(-5px);}
   50%{transform:translateX(5px);}
 }
-
-@keyframes pop{
-  from{transform:scale(0.8);}
-  to{transform:scale(1);}
-}
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="card" id="card">
   <h2>💎 VINN PAY</h2>
 
   <input id="email" placeholder="Email">
@@ -132,6 +145,7 @@ button:hover{
 <script>
 const loading = document.getElementById("loading");
 const notif = document.getElementById("notif");
+const card = document.getElementById("card");
 
 async function login(){
   loading.style.display="block";
@@ -158,7 +172,6 @@ async function login(){
 
       localStorage.setItem("token", data.token);
 
-      // animasi masuk dashboard
       setTimeout(()=>{
         document.body.style.opacity="0";
         setTimeout(()=>{
@@ -170,6 +183,8 @@ async function login(){
       notif.innerText="❌ "+data.message;
       notif.className="notif error";
       notif.style.display="block";
+      card.classList.add("shake");
+      setTimeout(()=>card.classList.remove("shake"),300);
     }
 
   }catch(err){
@@ -177,162 +192,8 @@ async function login(){
     notif.innerText="❌ Server error";
     notif.className="notif error";
     notif.style.display="block";
-  }
-}
-</script>
-
-</body>
-</html>  border-top:3px solid #3b82f6;
-  border-radius:50%;
-  width:25px;
-  height:25px;
-  animation: spin 1s linear infinite;
-  margin:auto;
-}
-
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
-
-/* NOTIF */
-.notif {
-  margin-top:10px;
-  padding:10px;
-  border-radius:10px;
-  display:none;
-}
-
-.success {
-  background:#16a34a;
-}
-
-.error {
-  background:#dc2626;
-}
-
-/* SHAKE */
-.shake {
-  animation: shake 0.3s;
-}
-
-@keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
-}
-</style>
-</head>
-
-<body>
-
-<div class="card" id="card">
-  <h2>💳 VINN PAY</h2>
-
-  <input id="email" placeholder="Email">
-  <input id="pass" type="password" placeholder="Password">
-
-  <button onclick="login()">Login</button>
-  <button onclick="register()">Register</button>
-
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p>Memproses...</p>
-  </div>
-
-  <div id="notif" class="notif"></div>
-</div>
-
-<script>
-const loading = document.getElementById("loading");
-const notif = document.getElementById("notif");
-const card = document.getElementById("card");
-
-function showLoading(state){
-  loading.style.display = state ? "block" : "none";
-}
-
-function showNotif(text, type){
-  notif.innerText = text;
-  notif.className = "notif " + type;
-  notif.style.display = "block";
-}
-
-function shake(){
-  card.classList.add("shake");
-  setTimeout(()=>card.classList.remove("shake"),300);
-}
-
-// LOGIN
-async function login(){
-  showLoading(true);
-  notif.style.display="none";
-
-  try {
-    const res = await fetch("/api/auth/login", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
-        email: email.value,
-        password: pass.value
-      })
-    });
-
-    const data = await res.json();
-
-    showLoading(false);
-
-    if(data.success){
-      showNotif("✅ Login berhasil!", "success");
-      localStorage.setItem("token", data.token);
-
-      setTimeout(()=>{
-        location.href="/dashboard.html";
-      },1000);
-
-    } else {
-      showNotif("❌ " + data.message, "error");
-      shake();
-    }
-
-  } catch (err){
-    showLoading(false);
-    showNotif("❌ Server error", "error");
-    shake();
-  }
-}
-
-// REGISTER
-async function register(){
-  showLoading(true);
-  notif.style.display="none";
-
-  try {
-    const res = await fetch("/api/auth/register", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
-        email: email.value,
-        password: pass.value
-      })
-    });
-
-    const data = await res.json();
-
-    showLoading(false);
-
-    if(data.success){
-      showNotif("✅ Register berhasil!", "success");
-    } else {
-      showNotif("❌ " + data.message, "error");
-      shake();
-    }
-
-  } catch (err){
-    showLoading(false);
-    showNotif("❌ Server error", "error");
-    shake();
+    card.classList.add("shake");
+    setTimeout(()=>card.classList.remove("shake"),300);
   }
 }
 </script>
