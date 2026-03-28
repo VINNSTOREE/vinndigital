@@ -8,7 +8,7 @@
 <style>
 body {
   margin: 0;
-  font-family: sans-serif;
+  font-family: 'Poppins', sans-serif;
   background: radial-gradient(circle, #1e3a8a, #020617);
   display: flex;
   justify-content: center;
@@ -17,24 +17,40 @@ body {
   color: white;
 }
 
+/* CONTAINER */
 .container {
   width: 340px;
   padding: 25px;
-  border-radius: 20px;
+  border-radius: 25px;
   background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(25px);
   text-align: center;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  animation: fadeIn 0.8s ease;
 }
 
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(20px);}
+  to {opacity:1; transform: translateY(0);}
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+/* INPUT */
 input {
   width: 100%;
   padding: 12px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
   margin: 10px 0;
   text-align: center;
+  background: rgba(255,255,255,0.08);
+  color: white;
 }
 
+/* BUTTON GRID */
 .buttons {
   display: grid;
   grid-template-columns: repeat(3,1fr);
@@ -45,27 +61,90 @@ button {
   padding: 10px;
   border: none;
   border-radius: 10px;
-  background: #334155;
+  background: rgba(255,255,255,0.08);
   color: white;
   cursor: pointer;
+  transition: 0.2s;
 }
 
+button:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
+/* PAY BUTTON */
 .pay {
   margin-top: 10px;
-  background: #2563eb;
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  font-weight: bold;
 }
 
-.loading, .qr, .success {
+/* LOADING MEWAH */
+.loading {
   display: none;
-  margin-top: 15px;
+  margin-top: 20px;
+}
+
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid rgba(255,255,255,0.1);
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* TEXT LOADING */
+.loading-text {
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.8;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%,100%{opacity:0.3}
+  50%{opacity:1}
+}
+
+/* QR */
+.qr {
+  display: none;
+  margin-top: 20px;
+  animation: zoomIn 0.5s ease;
+}
+
+@keyframes zoomIn {
+  from {transform: scale(0.7); opacity:0;}
+  to {transform: scale(1); opacity:1;}
 }
 
 .qr img {
   width: 200px;
+  border-radius: 10px;
 }
 
 .timer {
-  color: yellow;
+  color: #facc15;
+}
+
+/* SUCCESS */
+.success {
+  display: none;
+  margin-top: 20px;
+  font-size: 18px;
+  color: #22c55e;
+  animation: pop 0.5s ease;
+}
+
+@keyframes pop {
+  from {transform: scale(0.5); opacity:0;}
+  to {transform: scale(1); opacity:1;}
 }
 </style>
 </head>
@@ -86,17 +165,25 @@ button {
     <button onclick="setNom(100000)">100K</button>
   </div>
 
-  <button class="pay" onclick="bayar()">Bayar</button>
+  <button class="pay" onclick="bayar()">Bayar Sekarang</button>
 
-  <div class="loading" id="loading">⏳ Membuat QRIS...</div>
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">Menghubungkan...</div>
+  </div>
 
+  <!-- QR -->
   <div class="qr" id="qr">
     <img id="qrImage">
     <p id="trxId"></p>
     <div class="timer" id="timer"></div>
   </div>
 
-  <div class="success" id="success">✅ Pembayaran Berhasil</div>
+  <!-- SUCCESS -->
+  <div class="success" id="success">
+    🎉 Pembayaran Berhasil!
+  </div>
 </div>
 
 <script>
@@ -108,7 +195,14 @@ async function bayar(){
   const nominal = document.getElementById("nominal").value;
   if(!nominal) return alert("Isi nominal!");
 
-  document.getElementById("loading").style.display = "block";
+  const loading = document.getElementById("loading");
+  const text = document.getElementById("loadingText");
+
+  loading.style.display = "block";
+
+  // animasi text berubah
+  setTimeout(()=> text.innerText = "Memproses pembayaran...", 1000);
+  setTimeout(()=> text.innerText = "Membuat QRIS...", 2000);
 
   const res = await fetch("/api/create", {
     method: "POST",
@@ -117,7 +211,7 @@ async function bayar(){
   });
 
   const data = await res.json();
-  document.getElementById("loading").style.display = "none";
+  loading.style.display = "none";
 
   if(!data.success) return alert("Gagal buat QR");
 
